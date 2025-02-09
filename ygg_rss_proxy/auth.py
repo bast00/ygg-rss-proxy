@@ -34,6 +34,13 @@ def ygg_basic_login(
         logger.info("Successfully authenticated to YGG")
         return session
     else:
+        logger.debug(f"Content : {response.text}")
+        try:
+            if response.json()['message'] == "Bad credentials.":
+                logger.error('Wrong credentials')
+                exit(1)  # TODO : must throw YggBadCredentialsError
+        except Exception as e:
+            logger.debug(f'Failed to parse content as json : {e}')
         logger.debug(f"Response url : {response.url}")
         logger.error(
             f"Failed to authenticate to YGG with status code : {response.status_code}"
@@ -105,7 +112,7 @@ def ygg_cloudflare_login(
                         path=cookie["path"],
                         path_specified=True,
                         secure=cookie["secure"],
-                        expires=cookie["expiry"],
+                        expires=cookie["expires"],
                         discard=False,
                         comment=None,
                         comment_url=None,
